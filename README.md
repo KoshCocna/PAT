@@ -21,6 +21,13 @@ git clone https://github.com/KoshCocna/PAT.git pat_ws
 mkdir -p pat_legacy   # 이전 작업물은 따로 복사해서 넣기
 ```
 
+커밋이 GitHub 프로필에 연결되도록, 새 PC마다 아래 설정을 한 번 실행한다.
+
+```bash
+git config --global user.name "KoshCocna"
+git config --global user.email "76080450+KoshCocna@users.noreply.github.com"
+```
+
 ## 일상적인 작업 흐름
 
 ```bash
