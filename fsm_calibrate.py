@@ -49,6 +49,10 @@ N_AVG = 30               # 평균 샘플 수
 PSD_LIMIT = 5.0          # PSD 유효 범위 (mm)
 NOISE_FLOOR_MM = 0.01    # 이보다 작은 변위는 "응답 없음"으로 본다
 
+# 축 독립성 판정. fsm_jog.py 와 같은 기준을 쓴다 (스케일 무관).
+AXIS_SIN_MIN = 0.10      # |det|/(|c0||c1|) = 두 축 사이 각의 sin
+AXIS_SIN_WARN = 0.30
+
 
 class BeamOutOfRange(RuntimeError):
     """가진했더니 빔이 PSD 밖으로 나갔다. DELTA 를 줄여야 한다."""
@@ -145,16 +149,21 @@ def main():
 
         det = np.linalg.det(J)
         cond = np.linalg.cond(J)
-        print(f"\ndet(J)  = {det:.6f}")
-        print(f"cond(J) = {cond:.2f}")
+        # 축 독립성은 |det|/(|c0||c1|) = 두 축 사이 각의 sin 으로 본다.
+        # det 자체에 절대 임계값을 걸면 안 된다 -- det 는 (mm/unit)^2 스케일이라
+        # 미러 헤드와 L 에 따라 자릿수가 통째로 달라진다.
+        sin_ax = abs(det) / max(np.linalg.norm(J[:, 0]) * np.linalg.norm(J[:, 1]), 1e-12)
+        print(f"\ndet(J)     = {det:.6g}")
+        print(f"cond(J)    = {cond:.2f}")
+        print(f"축 독립성   = {sin_ax:.3f} "
+              f"({np.degrees(np.arcsin(min(sin_ax, 1.0))):.1f}deg)")
 
-        if abs(det) < 1e-6:
+        if sin_ax < AXIS_SIN_MIN:
             print("\n실패: J 가 특이행렬에 가깝다. 두 축이 PSD 상에서 거의 같은 방향으로 "
                   "움직인다는 뜻이다. 광학 배치 또는 채널 배선을 확인할 것.")
             return
-        if cond > 10:
-            print("\n경고: cond(J) 가 크다. 축간 커플링이 심하거나 한 축 감도가 훨씬 낮다. "
-                  "제어는 되지만 게인 튜닝이 까다로워진다.")
+        if sin_ax < AXIS_SIN_WARN:
+            print("\n경고: 축간 커플링이 심하다. 제어는 되지만 게인 튜닝이 까다로워진다.")
 
         # 축 회전각 (참고용)
         angle = np.degrees(np.arctan2(J[1, 0], J[0, 0]))
