@@ -1,6 +1,6 @@
 # 광학 배치와 FSM 미러 각도
 
-**확정일** 2026-09-07 · 대응 그림: <https://claude.ai/code/artifact/d57e3be4-cac2-4a5e-83d4-123e1af66fdd>
+**확정일** 2026-09-07
 
 이 문서는 "FSM 미러를 몇 도로 놓아야 하는가"와 "그 각도가 제어에 무엇을 남기는가"를 다룬다.
 프로젝트 전체 현황은 [STATUS.md](STATUS.md), 실행 순서는 [README.md](README.md).
