@@ -119,10 +119,10 @@ class Jog:
             self.ux += self.step
             self.apply()
         elif k == "up":
-            self.uy += self.step
+            self.uy -= self.step  # 방향 반전: 위 키 → uy 감소
             self.apply()
         elif k == "down":
-            self.uy -= self.step
+            self.uy += self.step  # 방향 반전: 아래 키 → uy 증가
             self.apply()
         elif k == "[":
             self.step = max(self.step / 2.0, STEP_MIN)

@@ -37,13 +37,32 @@ from psd_conex import PSD
 # 포트는 psd_conex.DEFAULT_PORT / fsm_optotune.DEFAULT_PORT 한 곳에서만 고친다.
 
 # ================================================================
-# FSM 중앙에서 빔이 PSD에 없으면 여기에 fsm_jog.py에서 찾은 위치를 넣는다.
-# 예: fsm_jog.py에서 u=(+0.071, +0.028)에서 빔을 찾았다면:
-#     CENTER_OFFSET = (0.071, 0.028)
-# 빔이 FSM 중앙에 있으면:
-#     CENTER_OFFSET = None
+# 빔 위치 자동 로드
+# fsm_find_beam.py를 먼저 실행하면 beam_position.json이 생성되며,
+# 여기서 자동으로 읽어온다. 파일이 없으면 수동 설정값 사용.
 # ================================================================
-CENTER_OFFSET = (0.071, 0.028)  # fsm_jog.py에서 찾은 위치
+def load_beam_position():
+    """beam_position.json에서 최적 빔 위치를 읽어온다."""
+    import json
+    import os
+    try:
+        if os.path.exists("beam_position.json"):
+            with open("beam_position.json", "r", encoding="utf-8") as f:
+                data = json.load(f)
+            ux, uy = data["fsm_u"]
+            print(f"  빔 위치 자동 로드: u=({ux:+.5f}, {uy:+.5f}), power={data['power']:.2f}")
+            print(f"    (파일: beam_position.json, {data['timestamp']})")
+            return (ux, uy)
+    except Exception as e:
+        print(f"  경고: beam_position.json 읽기 실패 ({e})")
+    return None
+
+CENTER_OFFSET = load_beam_position()  # 자동 로드 시도
+if CENTER_OFFSET is None:
+    # 자동 로드 실패 시 수동 설정값 사용
+    CENTER_OFFSET = (0.071, 0.028)
+    print(f"  수동 설정 CENTER_OFFSET 사용: {CENTER_OFFSET}")
+    print(f"  (자동 탐색: python fsm_find_beam.py 실행 후 다시 시도)")
 
 DELTA = None             # None = 자동 레인징. 숫자를 넣으면 그 값으로 고정.
 DELTA_START = 0.002      # 자동 레인징 시작값 (unit). 안전하게 작은 쪽에서 시작.
