@@ -39,8 +39,7 @@ from fsm_optotune import OptotuneFSM
 from psd_conex import PSD
 
 # ====== 설정 ======
-PSD_PORT = "COM6"
-FSM_PORT = None            # None = 자동 탐색
+# 포트는 psd_conex.DEFAULT_PORT / fsm_optotune.DEFAULT_PORT 한 곳에서만 고친다.
 
 STEP_INIT = 0.001          # 초기 조그 스텝 (unit). 감도를 모르므로 작게 시작한다.
 STEP_MIN = 1e-5
@@ -63,8 +62,8 @@ AXIS_SIN_WARN = 0.30
 
 class Jog:
     def __init__(self):
-        self.psd = PSD(port=PSD_PORT)
-        self.fsm = OptotuneFSM(port=FSM_PORT)
+        self.psd = PSD()
+        self.fsm = OptotuneFSM()
 
         self.ux = 0.0
         self.uy = 0.0

@@ -9,6 +9,12 @@ import os
 import sys
 import clr
 
+# ====================================================================
+# 포트 설정의 단일 출처. 새 PC 에서는 여기 한 곳만 고치면 된다.
+# (check_env.py 가 COM 포트 목록을 뽑아준다)
+# ====================================================================
+DEFAULT_PORT = "COM6"
+
 DLL_PATH = r"C:\Windows\Microsoft.NET\assembly\GAC_64\Newport.CONEXPSD.CommandInterface\v4.0_2.0.0.3__0e6bb3450a1048fd\Newport.CONEXPSD.CommandInterface.dll"
 
 if not os.path.exists(DLL_PATH):
@@ -22,8 +28,8 @@ from CommandInterfaceConexPSD import ConexPSD  # noqa: E402
 class PSD:
     """CONEX-PSD10GE. read()는 (x_mm, y_mm, power)를 돌려준다."""
 
-    def __init__(self, port="COM6", channel=1):
-        self.port = port
+    def __init__(self, port=None, channel=1):
+        self.port = port or DEFAULT_PORT
         self.channel = channel
         self._dev = None
 

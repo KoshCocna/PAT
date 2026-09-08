@@ -32,8 +32,7 @@ from fsm_optotune import OptotuneFSM
 from psd_conex import PSD
 
 # ====== 설정 ======
-PSD_PORT = "COM6"
-FSM_PORT = None            # None = 자동 탐색
+# 포트는 psd_conex.DEFAULT_PORT / fsm_optotune.DEFAULT_PORT 한 곳에서만 고친다.
 
 SAMPLING_INTERVAL = 0.005  # 목표 루프 주기 (s). 실제로는 PSD 시리얼 읽기가 병목.
 PSD_LIMIT = 5.0            # PSD 유효 범위 (mm)
@@ -95,8 +94,8 @@ class PID2D:
 
 class Tracker:
     def __init__(self):
-        self.psd = PSD(port=PSD_PORT)
-        self.fsm = OptotuneFSM(port=FSM_PORT)
+        self.psd = PSD()
+        self.fsm = OptotuneFSM()
         self.pid = PID2D(KP, KI, KD, I_LIMIT, D_LPF_HZ)
         self.running = True
         self.saturated = False

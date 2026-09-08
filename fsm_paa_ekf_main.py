@@ -76,8 +76,7 @@ from fsm_PID import PID2D, KP, KI, KD, I_LIMIT, D_LPF_HZ
 
 
 # ====== 하드웨어 ======
-PSD_PORT = "COM6"
-FSM_PORT = None             # None = 자동 탐색
+# 포트는 psd_conex.DEFAULT_PORT / fsm_optotune.DEFAULT_PORT 한 곳에서만 고친다.
 
 # ====== 기하 ======
 L_M = 4.0                   # FSM -> PSD 광 경로 길이 (m). J 를 측정한 그 배치여야 한다.
@@ -117,8 +116,8 @@ class FSMPAAEKFSystem:
     """FSM 단독 PAA-EKF PAT 시스템"""
 
     def __init__(self):
-        self.psd = PSD(port=PSD_PORT)
-        self.fsm = OptotuneFSM(port=FSM_PORT)
+        self.psd = PSD()
+        self.fsm = OptotuneFSM()
 
         self.ekf = ExtendedKalmanFilter(
             dt=SAMPLING_INTERVAL,

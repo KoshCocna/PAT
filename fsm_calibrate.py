@@ -34,8 +34,7 @@ import numpy as np
 from fsm_optotune import CALIB_FILE, OptotuneFSM
 from psd_conex import PSD
 
-PSD_PORT = "COM6"
-FSM_PORT = None          # None = 자동 탐색
+# 포트는 psd_conex.DEFAULT_PORT / fsm_optotune.DEFAULT_PORT 한 곳에서만 고친다.
 
 DELTA = None             # None = 자동 레인징. 숫자를 넣으면 그 값으로 고정.
 DELTA_START = 0.002      # 자동 레인징 시작값 (unit). 안전하게 작은 쪽에서 시작.
@@ -119,8 +118,8 @@ def main():
     print("  FSM <-> PSD Jacobian Calibration")
     print("=" * 70)
 
-    psd = PSD(port=PSD_PORT).open()
-    fsm = OptotuneFSM(port=FSM_PORT).connect()
+    psd = PSD().open()
+    fsm = OptotuneFSM().connect()
 
     try:
         # 0. 중앙 기준점
@@ -180,7 +179,7 @@ def main():
             json.dump({
                 "J_mm_per_unit": J.tolist(),
                 "delta_unit": delta,
-                "psd_port": PSD_PORT,
+                "psd_port": psd.port,
                 "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
             }, f, indent=2)
         print(f"\n저장됨: {CALIB_FILE}")

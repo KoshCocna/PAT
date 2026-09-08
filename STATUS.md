@@ -3,7 +3,8 @@
 **작성일** 2026-09-07 · **최종 갱신** 2026-09-07 (광학 배치 확정 반영)
 
 이 문서는 "지금 어디까지 왔고, 무엇이 결정됐고, 다음에 뭘 해야 하는가"를 정리한 것이다.
-사용법과 실행 순서는 [README.md](README.md), 광학 배치와 미러 각도는 [OPTICS.md](OPTICS.md) 에 있다.
+사용법과 실행 순서는 [README.md](README.md), 광학 배치와 미러 각도는 [OPTICS.md](OPTICS.md),
+작업용 PC 셋업 절차는 [SETUP.md](SETUP.md) 에 있다.
 
 ---
 
@@ -47,6 +48,7 @@ C:\Users\licsk\research\PAT\
 | 파일 | 줄 | 역할 |
 |---|---|---|
 | `psd_conex.py` | 74 | CONEX-PSD10GE 읽기 래퍼. `read()` / `read_avg(n)` |
+| `check_env.py` | 234 | 환경 점검 (Python/패키지/DLL/COM 포트). 클론 직후 실행 |
 | `fsm_jog.py` | 319 | 키보드 조그 + 실시간 PSD 표시. **하드웨어 첫 실행용** |
 | `fsm_optotune.py` | 210 | MR-E-3 액추에이터 레이어. Zaber `x_axis`/`y_axis` 대체 |
 | `fsm_calibrate.py` | 204 | FSM unit ↔ PSD mm 2×2 Jacobian 실측 → `fsm_calib.json` |

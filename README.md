@@ -48,7 +48,8 @@ git push            # 작업 끝낼 때
 
 | 파일 | 역할 |
 |---|---|
-| `psd_conex.py` | Newport CONEX-PSD 읽기 래퍼 |
+| `check_env.py` | 환경 점검. **클론 직후 가장 먼저 돌린다** |
+| `psd_conex.py` | Newport CONEX-PSD 읽기 래퍼. **포트 설정 단일 출처** |
 | `fsm_jog.py` | 키보드로 FSM을 밀며 PSD 반응을 눈으로 확인. **하드웨어 첫 실행용** |
 | `fsm_optotune.py` | MR-E-3 액추에이터 레이어 (Zaber `x_axis`/`y_axis` 대체) |
 | `fsm_calibrate.py` | FSM unit ↔ PSD mm 2×2 Jacobian 실측 → `fsm_calib.json` |
@@ -89,6 +90,7 @@ Zaber 코드는 이 저장소에 없다.
 pip install optoKummenberg-<ver>-py3-none-any.whl
 pip install optoMDC-<ver>-py3-none-any.whl        # MR-E-3 는 1.3.4781 이상
 
+python check_env.py            # 0. 환경 점검 (하드웨어 안 건드림)
 python fsm_jog.py              # 1. FSM 움직이면 PSD가 따라오는지 눈으로 확인
 python fsm_calibrate.py        # 2. J 실측 -> fsm_calib.json
 python fsm_PID.py              # 3. 폐루프 추적. PID 튜닝은 여기서
@@ -105,6 +107,9 @@ python fsm_paa_ekf_main.py     # 4. blind PAA-EKF 획득 + 추적
 d_mm  = theta_rad * L_mm        # L = FSM -> BS -> PSD 광 경로 길이 (실측 필요)
 d_mm  = J @ du                  # J = fsm_calib.json
 ```
+
+> **작업용 PC 셋업은 [SETUP.md](SETUP.md) 하나만 따라가면 된다.**
+> 클론부터 폐루프 추적까지, 단계별 막혔을 때 대응까지 포함.
 
 ### 실행 전 확인
 

@@ -24,6 +24,10 @@ import os
 import numpy as np
 import optoMDC
 
+# 포트 설정의 단일 출처. None = 자동 탐색 (보통 이대로 두면 된다).
+# 자동 탐색이 실패할 때만 "COM5" 같은 값을 넣는다.
+DEFAULT_PORT = None
+
 CALIB_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fsm_calib.json")
 
 
@@ -42,7 +46,7 @@ class OptotuneFSM:
     """
 
     def __init__(self, port=None, calib_file=CALIB_FILE, max_unit=0.8):
-        self.port = port
+        self.port = port if port is not None else DEFAULT_PORT
         self.calib_file = calib_file
         self.max_unit = max_unit          # 레일 여유. 1.0을 그대로 쓰면 포화 시 복구가 어렵다.
 
