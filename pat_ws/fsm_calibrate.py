@@ -36,6 +36,15 @@ from psd_conex import PSD
 
 # 포트는 psd_conex.DEFAULT_PORT / fsm_optotune.DEFAULT_PORT 한 곳에서만 고친다.
 
+# ================================================================
+# FSM 중앙에서 빔이 PSD에 없으면 여기에 fsm_jog.py에서 찾은 위치를 넣는다.
+# 예: fsm_jog.py에서 u=(+0.071, +0.028)에서 빔을 찾았다면:
+#     CENTER_OFFSET = (0.071, 0.028)
+# 빔이 FSM 중앙에 있으면:
+#     CENTER_OFFSET = None
+# ================================================================
+CENTER_OFFSET = (0.071, 0.028)  # fsm_jog.py에서 찾은 위치
+
 DELTA = None             # None = 자동 레인징. 숫자를 넣으면 그 값으로 고정.
 DELTA_START = 0.002      # 자동 레인징 시작값 (unit). 안전하게 작은 쪽에서 시작.
 DELTA_MIN = 1e-5
@@ -69,18 +78,20 @@ def measure(psd, fsm, ux, uy):
     return np.array([x, y]), p
 
 
-def autorange(psd, fsm, base):
+def autorange(psd, fsm, base, center_u):
     """
     PSD 변위가 TARGET_MM 근처가 되는 가진 크기(unit)를 찾는다.
     두 채널 중 감도가 큰 쪽을 기준으로 잡는다 (그쪽이 먼저 범위를 벗어나므로).
+    center_u: (ux, uy) 중심 위치 (오프셋 포함)
     """
     d = DELTA_START
     print(f"\n자동 레인징 (목표 변위 {TARGET_MM:.1f} mm, 시작 {d:.5f} unit)")
+    print(f"  중심 위치: u = ({center_u[0]:+.5f}, {center_u[1]:+.5f})")
 
     for attempt in range(1, AUTORANGE_TRIES + 1):
         try:
-            px, _ = measure(psd, fsm, +d, 0.0)
-            py, _ = measure(psd, fsm, 0.0, +d)
+            px, _ = measure(psd, fsm, center_u[0] + d, center_u[1])
+            py, _ = measure(psd, fsm, center_u[0], center_u[1] + d)
         except BeamOutOfRange as e:
             print(f"  [{attempt}] d={d:.5f} -> 범위 밖. 축소. ({e})")
             d = max(d * 0.3, DELTA_MIN)
@@ -122,23 +133,26 @@ def main():
     fsm = OptotuneFSM().connect()
 
     try:
-        # 0. 중앙 기준점
-        p0, pwr = measure(psd, fsm, 0.0, 0.0)
+        # 0. 중앙 기준점 (오프셋 포함)
+        center_u = CENTER_OFFSET if CENTER_OFFSET is not None else (0.0, 0.0)
+        p0, pwr = measure(psd, fsm, center_u[0], center_u[1])
         print(f"\ncenter: PSD = ({p0[0]:.4f}, {p0[1]:.4f}) mm, power = {pwr:.2f}")
+        if CENTER_OFFSET is not None:
+            print(f"  (오프셋 적용: FSM u = ({center_u[0]:+.5f}, {center_u[1]:+.5f}))")
         if pwr < 1.0:
             print("경고: 광량이 너무 낮다. 빔 정렬 먼저 확인할 것.")
 
         # 1. 가진 크기 결정
-        delta = DELTA if DELTA is not None else autorange(psd, fsm, p0)
+        delta = DELTA if DELTA is not None else autorange(psd, fsm, p0, center_u)
 
         # 2. X 채널 가진 (중앙차분 -> 오프셋/드리프트 상쇄)
-        px_p, _ = measure(psd, fsm, +delta, 0.0)
-        px_m, _ = measure(psd, fsm, -delta, 0.0)
+        px_p, _ = measure(psd, fsm, center_u[0] + delta, center_u[1])
+        px_m, _ = measure(psd, fsm, center_u[0] - delta, center_u[1])
         col_x = (px_p - px_m) / (2.0 * delta)      # [mm / unit]
 
         # 3. Y 채널 가진
-        py_p, _ = measure(psd, fsm, 0.0, +delta)
-        py_m, _ = measure(psd, fsm, 0.0, -delta)
+        py_p, _ = measure(psd, fsm, center_u[0], center_u[1] + delta)
+        py_m, _ = measure(psd, fsm, center_u[0], center_u[1] - delta)
         col_y = (py_p - py_m) / (2.0 * delta)
 
         J = np.column_stack([col_x, col_y])        # [dx_mm, dy_mm] = J @ [du_x, du_y]
