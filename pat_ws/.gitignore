@@ -1,0 +1,51 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# --- 가상환경 ---
+.venv/
+venv/
+env/
+ENV/
+
+# --- 노트북 ---
+.ipynb_checkpoints/
+
+# --- 에디터 / OS ---
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# --- 환경변수 / 비밀정보 ---
+.env
+.env.*
+*.key
+*.pem
+secrets.*
+
+# --- 실험 산출물 (용량 큰 것들) ---
+data/
+datasets/
+checkpoints/
+runs/
+outputs/
+logs/
+wandb/
+mlruns/
+*.ckpt
+*.pt
+*.pth
+*.h5
+*.npz
+*.pkl
+
+# --- 동료의 이전 작업물은 이 저장소에 포함하지 않음 ---
+# (pat_legacy 는 저장소 바깥 ../pat_legacy 에 위치)
+pat_legacy/
